@@ -12,6 +12,9 @@
         "node": ">=0.4.7"
     },
     "main": "index",
+    "dependencies": {
+        "buffers": "0.1.1"
+    },
     "directories": {
         "lib": "./lib"
     }
