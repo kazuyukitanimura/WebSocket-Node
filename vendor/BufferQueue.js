@@ -53,12 +53,13 @@ function BufferQueue(opts) {
   // Returns this (self).
   self.forEach = function(fn) {
     var position = head;
+    var headBuf = Queue[position.toString(16)];
 
-    if (!Queue[position.toString(16)]) return new self.construct(0);
+    if (!headBuf) return new self.construct(0);
 
-    if (Queue[position.toString(16)].length - offset <= 0) return self;
-    var firstBuf = new self.construct(Queue[position.toString(16)].length - offset);
-    Queue[position.toString(16)].copy(firstBuf, 0, offset, Queue[position.toString(16)].length);
+    if (headBuf.length - offset <= 0) return self;
+    var firstBuf = new self.construct(headBuf.length - offset);
+    headBuf.copy(firstBuf, 0, offset, headBuf.length);
 
     var buf = firstBuf;
 
@@ -74,9 +75,7 @@ function BufferQueue(opts) {
   // Create a single Buffer out of all the chunks or some subset specified by
   // start and one-past the end (like slice) in bytes.
   self.join = function(start, end) {
-    var position = head;
-
-    if (!Queue[position.toString(16)]) return new self.construct(0);
+    if (!Queue[head.toString(16)]) return new self.construct(0);
     if (start == undefined) start = 0;
     if (end == undefined) end = self.length;
 
@@ -95,9 +94,7 @@ function BufferQueue(opts) {
   };
 
   self.joinInto = function(targetBuffer, targetStart, sourceStart, sourceEnd) {
-    var position = head;
-
-    if (!Queue[position.toString(16)]) return new self.construct(0);
+    if (!Queue[head.toString(16)]) return new self.construct(0);
     if (sourceStart == undefined) sourceStart = 0;
     if (sourceEnd == undefined) sourceEnd = self.length;
 
@@ -126,9 +123,11 @@ function BufferQueue(opts) {
   self.advance = function(n) {
     offset += n;
     length -= n;
-    while (Queue[head.toString(16)] && offset >= Queue[head.toString(16)].length) {
-      offset -= Queue[head.toString(16)].length;
+    var headBuf = Queue[head.toString(16)];
+    while (headBuf && offset >= headBuf.length) {
+      offset -= headBuf.length;
       delete Queue[(head++).toString(16)];
+      headBuf = Queue[head.toString(16)];
     }
     self.emit('advance', n);
     return self;
