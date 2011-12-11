@@ -38,7 +38,7 @@ function BufferQueue(opts) {
 
   // Write to the bufferlist. Emits 'write'. Always returns true.
   self.write = function(buf) {
-    Queue[(tail++).toString(16)] = buf;
+    Queue[tail++] = buf;
     length += buf.length;
     self.emit('write', buf);
     return true;
@@ -53,7 +53,7 @@ function BufferQueue(opts) {
   // Returns this (self).
   self.forEach = function(fn) {
     var position = head;
-    var headBuf = Queue[position.toString(16)];
+    var headBuf = Queue[position];
 
     if (!headBuf) return new self.construct(0);
 
@@ -66,7 +66,7 @@ function BufferQueue(opts) {
     while(buf) {
       var r = fn(buf);
       if (r) break;
-      buf = Queue[(++position).toString(16)];
+      buf = Queue[++position];
     }
 
     return self;
@@ -75,7 +75,7 @@ function BufferQueue(opts) {
   // Create a single Buffer out of all the chunks or some subset specified by
   // start and one-past the end (like slice) in bytes.
   self.join = function(start, end) {
-    if (!Queue[head.toString(16)]) return new self.construct(0);
+    if (!Queue[head]) return new self.construct(0);
     if (start == undefined) start = 0;
     if (end == undefined) end = self.length;
 
@@ -94,7 +94,7 @@ function BufferQueue(opts) {
   };
 
   self.joinInto = function(targetBuffer, targetStart, sourceStart, sourceEnd) {
-    if (!Queue[head.toString(16)]) return new self.construct(0);
+    if (!Queue[head]) return new self.construct(0);
     if (sourceStart == undefined) sourceStart = 0;
     if (sourceEnd == undefined) sourceEnd = self.length;
 
@@ -123,11 +123,11 @@ function BufferQueue(opts) {
   self.advance = function(n) {
     offset += n;
     length -= n;
-    var headBuf = Queue[head.toString(16)];
+    var headBuf = Queue[head];
     while (headBuf && offset >= headBuf.length) {
       offset -= headBuf.length;
-      delete Queue[(head++).toString(16)];
-      headBuf = Queue[head.toString(16)];
+      delete Queue[head++];
+      headBuf = Queue[head];
     }
     self.emit('advance', n);
     return self;
