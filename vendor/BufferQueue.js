@@ -127,6 +127,7 @@ function BufferQueue(opts) {
     offset += n;
     length -= n;
     while (Queue[head.toString(16)] && offset >= Queue[head.toString(16)].length) {
+      delete Queue[head.toString(16)];
       offset -= Queue[(head++).toString(16)].length;
     }
     self.emit('advance', n);
