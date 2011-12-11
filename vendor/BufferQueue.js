@@ -58,10 +58,8 @@ function BufferQueue(opts) {
     if (!headBuf) return new self.construct(0);
 
     if (headBuf.length - offset <= 0) return self;
-    var firstBuf = new self.construct(headBuf.length - offset);
-    headBuf.copy(firstBuf, 0, offset, headBuf.length);
 
-    var buf = firstBuf;
+    var buf = headBuf.slice(offset);
 
     while(buf) {
       var r = fn(buf);
