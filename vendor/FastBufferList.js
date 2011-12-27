@@ -138,6 +138,7 @@ function BufferList(opts) {
     // Returns this (self).
     self.advance = function (n) {
         var offset = n;
+        length -= n;
         while (head.buffer && offset >= head.buffer.length) {
             offset -= head.buffer.length;
             head = head.next
@@ -145,8 +146,10 @@ function BufferList(opts) {
                 : { buffer : null, next : null }
             ;
         }
-        head.buffer.offset += offset;
-        head.buffer.length -= offset;
+        if(head.buffer){
+          head.buffer.offset += offset;
+          head.buffer.length -= offset;
+        }
         self.emit('advance', n);
         return self;
     };
