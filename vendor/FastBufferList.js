@@ -34,9 +34,6 @@ function BufferList(opts) {
         return length;
     });
     
-    // keep an offset of the head to decide when to head = head.next
-    var offset = 0;
-    
     // Write to the bufferlist. Emits 'write'. Always returns true.
     self.write = function (buf) {
         if (!head.buffer) {
@@ -70,10 +67,7 @@ function BufferList(opts) {
     self.forEach = function (fn) {
         if (!head.buffer) return new self.construct(0);
         
-        if (head.buffer.length - offset <= 0) return self;
-        var firstBuf = head.buffer.slice(offset);
-        
-        var b = { buffer : firstBuf, next : head.next };
+        var b = head;
         
         while (b && b.buffer) {
             var r = fn(b.buffer);
@@ -143,8 +137,7 @@ function BufferList(opts) {
     // pushed.
     // Returns this (self).
     self.advance = function (n) {
-        offset += n;
-        length -= n;
+        var offset = n;
         while (head.buffer && offset >= head.buffer.length) {
             offset -= head.buffer.length;
             head = head.next
@@ -152,6 +145,8 @@ function BufferList(opts) {
                 : { buffer : null, next : null }
             ;
         }
+        head.buffer.offset += offset;
+        head.buffer.length -= offset;
         self.emit('advance', n);
         return self;
     };
